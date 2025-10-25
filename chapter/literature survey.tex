@@ -1,0 +1,431 @@
+\chapter{Literature Survey}
+\label{chap:literature_survey}
+\section{Paper 1: GPT (Generative Pre-Trained Transformer)—A Comprehensive Review on Enabling Technologies, Potential Applications, Emerging Challenges, and Future Directions \cite{yenduri2024}}
+
+\subsection{Motivation}
+Yenduri \textit{et al.} (2024) present one of the most exhaustive surveys on the GPT family of models, emphasizing their significance as cognitive amplifiers that enable machines to approximate human-level text understanding and synthesis.  
+The authors recognize that GPT architectures have shifted the paradigm of language modeling—from fixed-feature extraction to end-to-end generative reasoning—thus redefining how human knowledge can be represented and communicated by AI systems.  
+
+The paper’s motivation stems from the exponential growth of both **model capacity** and **contextual generalization**, which together underpin modern generative intelligence.  
+It further explores the dual role of GPT models as:  
+(1) foundational engines for downstream NLP tasks, and  
+(2) frameworks for advancing reasoning, creativity, and human-machine collaboration.  
+The study also identifies bottlenecks in training cost, energy consumption, and ethical governance that constrain scaling beyond GPT-4.
+
+\subsection{Model Overview and Methodology}
+The review classifies GPT’s architectural evolution from GPT-1 through GPT-4, tracing key improvements in transformer depth, tokenization strategies, optimization algorithms, and training objectives.  
+While all versions employ a unidirectional transformer decoder, successive generations introduced major innovations:
+
+\begin{itemize}
+    \item \textbf{GPT-1 (2018):} Introduced the first large-scale unsupervised transformer using next-token prediction.  
+    Objective function:
+    \[
+    \mathcal{L}_{GPT} = - \sum_{t=1}^{T} \log P(w_t \mid w_{<t}; \theta)
+    \]
+    where \( w_t \) denotes the current token and \( w_{<t} \) represents all previous tokens in the sequence.
+    
+    \item \textbf{GPT-2 (2019):} Expanded data diversity to 8 million documents and refined layer normalization, improving perplexity and coherence.  
+    Introduced longer context windows (1024 tokens) and adaptive softmax for vocabulary efficiency.
+
+    \item \textbf{GPT-3 (2020):} Scaled up to 175 billion parameters with parallelized training across 96 NVIDIA A100 GPUs using model and data parallelism.  
+    The transformer block follows:
+    \[
+    \mathbf{h}_l = \text{LN}\!\left(\mathbf{h}_{l-1} + \text{MHSA}(\mathbf{h}_{l-1})\right) \quad ; \quad
+    \mathbf{z}_l = \text{LN}\!\left(\mathbf{h}_l + \text{FFN}(\mathbf{h}_l)\right)
+    \]
+    where LN = Layer Norm, MHSA = Multi-Head Self-Attention, FFN = Feed-Forward Network.  
+
+    \item \textbf{GPT-4 (2023):} Incorporated mixture-of-experts routing and reinforcement learning from human feedback (RLHF).  
+    Reward optimization is formalized as:
+    \[
+    \nabla_\theta J(\theta) = \mathbb{E}_{x \sim \pi_\theta} [ \nabla_\theta \log \pi_\theta(x) (R(x) - b) ]
+    \]
+    where \( R(x) \) is human-aligned reward and \( b \) is a baseline to reduce variance.
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\textwidth]{images/paper1_gpt_comparison.png}
+\caption{Comparison of GPT architectures from GPT-1 to GPT-4.}
+\end{figure}
+
+Each iteration of GPT increases its representational depth and context retention capacity.  
+The evolution reflects the **scaling law** observed by Kaplan \textit{et al.}, where performance \( P \) improves as:
+\[
+P \propto N^\alpha D^\beta C^\gamma
+\]
+with \( N \) = parameter count, \( D \) = dataset size, \( C \) = compute budget, and exponents \( \alpha,\beta,\gamma > 0 \).  
+
+\subsection{Training and Optimization Techniques}
+The paper outlines critical training innovations that enabled GPT scalability:
+\begin{enumerate}
+    \item \textbf{Tokenization:} Uses Byte-Pair Encoding (BPE) to reduce vocabulary explosion. Tokens are represented as sub-word units optimized through frequency merging.  
+    \item \textbf{Attention Scaling:} Implements Sparse Transformer attention where only top-\(k\) activations are used, reducing \( \mathcal{O}(n^2) \) complexity to \( \mathcal{O}(nk) \).  
+    \item \textbf{Regularization:} Dropout (0.1 – 0.2) and residual layer normalization stabilize gradient propagation.  
+    \item \textbf{Optimizer:} Adam with warm-up learning rate scheduling:
+    \[
+    \eta_t = \eta_0 \cdot \min(t^{-0.5}, t \cdot w^{-1.5})
+    \]
+    where \( w \) is warm-up step count.
+\end{enumerate}
+
+\subsection{Applications and Societal Impact}
+Yenduri \textit{et al.} (2024) emphasize that GPT models have transformed multiple domains:
+\begin{itemize}
+    \item \textbf{Education:} Personalized tutoring systems capable of real-time concept reinforcement and evaluation.  
+    \item \textbf{Healthcare:} Contextual question answering for clinical documentation and symptom triage.  
+    \item \textbf{Knowledge Discovery:} Semantic search and summarization engines that aggregate cross-disciplinary knowledge.  
+    \item \textbf{Creative Industries:} Automated text, script, and code generation, enhancing productivity and idea expansion.  
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{images/paper1_gpt_evolution.png}
+\caption{Evolution of GPT architecture and scaling parameters.}
+\end{figure}
+
+\subsection{Results and Discussion}
+GPT models exhibit emergent abilities such as in-context learning and zero-shot reasoning.  
+According to Yenduri \textit{et al.}, performance across major benchmarks improves monotonically with parameter count until $\approx$ 540 B parameters, after which marginal gains reduce.  
+
+The paper compiles benchmark outcomes as follows:
+\[
+\text{Accuracy}_{\text{MMLU}} = 56.8\%, \quad 
+\text{Accuracy}_{\text{SuperGLUE}} = 88.4\%
+\]
+for GPT-4.  
+These results demonstrate an implicit form of meta-learning: models can perform unseen tasks without explicit gradient updates, given a sufficiently rich prompt.
+
+However, the authors also discuss **limitations**:
+\begin{enumerate}
+    \item Hallucination and factual inconsistency due to imperfect grounding.  
+    \item Computational cost scaling super-linearly with parameter growth.  
+    \item Ethical concerns: bias reinforcement and opacity in model reasoning.  
+\end{enumerate}
+
+\subsection{Strengths, Limitations, and Relevance}
+\textbf{Strengths:} Comprehensive architectural taxonomy, inclusion of mathematical scaling laws, and connection to emergent properties.  
+\textbf{Limitations:} Review-oriented (no empirical replication).  
+\textbf{Relevance:} Forms the theoretical basis of large-scale transformer optimization, directly complementing the objectives of the base paper on efficiency and scaling.
+
+\vspace{0.4cm}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\textwidth]{images/paper1_gpt_enabling.png}
+\caption{Enabling technologies underlying GPT model families, including attention, optimization, and fine-tuning.}
+\end{figure}
+\section{Paper 2: Quantized Transformer Language Model Implementations on Edge Devices \cite{urrahman2023}}
+
+\subsection{Motivation}
+Ur Rahman \textit{et al.} (2023) tackle one of the most significant challenges in deploying transformer-based language models — their high computational and memory footprint.  
+While models such as BERT and GPT achieve state-of-the-art accuracy, their multi-billion parameter sizes make them impractical for low-power environments like IoT devices, smartphones, and embedded systems.
+
+The authors propose a quantization-driven optimization approach that enables transformer models to operate efficiently under severe hardware constraints. Their motivation aligns with the ongoing research trend in edge computing: transferring AI computation closer to the data source while maintaining inference reliability and privacy.
+
+Quantization helps convert large 32-bit floating-point models into low-precision integer representations (typically 8-bit or 4-bit) without significant loss of performance.  
+This directly impacts:
+\begin{itemize}
+    \item \textbf{Model Compression:} Reduces storage requirements and memory bandwidth.  
+    \item \textbf{Computation Acceleration:} Enables faster matrix operations on low-power CPUs and microcontrollers.  
+    \item \textbf{On-Device Inference:} Facilitates real-time predictions without cloud dependency, improving privacy and latency.
+\end{itemize}
+
+\subsection{Methodology}
+The authors present two major quantization frameworks — \textit{Post-Training Quantization (PTQ)} and \textit{Quantization-Aware Training (QAT)} — and experimentally validate their effect on model accuracy, throughput, and energy efficiency.
+
+\subsubsection{Quantization Process}
+A transformer model is composed of linear layers, matrix multiplications, and attention mechanisms.  
+Quantization modifies each of these by approximating the continuous floating-point weight matrix \( W \) using discrete integer representations \( W_q \):
+\[
+W_q = \text{round}\!\left( \frac{W}{S} \right) + Z
+\]
+where \( S \) is the scaling factor and \( Z \) is the zero-point offset used to shift the quantized range.  
+The dequantized value during inference is:
+\[
+\hat{W} = S \cdot (W_q - Z)
+\]
+Thus, model computations can be performed using integer arithmetic while maintaining approximate fidelity to the original model.
+
+\subsubsection{Post-Training Quantization (PTQ)}
+PTQ applies quantization to a pre-trained floating-point model after training is completed. It minimizes conversion overhead and does not require re-training.  
+Although simple, PTQ may slightly degrade accuracy because the quantizer does not adapt during gradient updates.
+
+The authors model the quantization error as:
+\[
+\epsilon = \mathbb{E} \left[ \| W - \hat{W} \|_2^2 \right]
+\]
+and propose minimizing \( \epsilon \) via optimal scaling factor \( S^* \):
+\[
+S^* = \frac{\max(W) - \min(W)}{2^b - 1}
+\]
+where \( b \) is the bit-width (e.g., \( b = 8 \) for INT8).
+
+\subsubsection{Quantization-Aware Training (QAT)}
+QAT incorporates quantization during training so the model learns to compensate for discretization effects.  
+The quantization operator is embedded inside the forward pass, while the backward pass uses the Straight-Through Estimator (STE) to propagate gradients:
+\[
+\frac{\partial L}{\partial W} \approx \frac{\partial L}{\partial W_q}
+\]
+This preserves gradient flow despite the non-differentiable rounding operation.  
+QAT typically achieves better accuracy than PTQ but at a higher training cost.
+
+\subsubsection{Experimental Setup}
+\begin{itemize}
+    \item \textbf{Baseline Models:} BERT-Base, TinyBERT, and DistilBERT.  
+    \item \textbf{Hardware:} Raspberry Pi 4 (ARM Cortex-A72) and NVIDIA Jetson Nano (Quad-core ARM Cortex-A57).  
+    \item \textbf{Datasets:} SST-2 (sentiment analysis), IMDb (movie reviews), and AG News (text classification).  
+    \item \textbf{Evaluation Metrics:} Accuracy, latency, model size, energy per inference, and memory footprint.
+\end{itemize}
+
+\subsection{Implementation Framework}
+The quantized models were implemented using TensorFlow Lite and PyTorch Mobile.  
+TensorFlow Lite applies asymmetric quantization, while PyTorch Mobile supports symmetric quantization for weights and asymmetric for activations.
+
+The inference pipeline is represented as:
+\[
+Y_q = S_X S_W (X_q - Z_X)(W_q - Z_W) + Z_Y
+\]
+where \( S_X, S_W, S_Y \) are scale factors for input, weight, and output tensors respectively.  
+
+The key optimization strategies include:
+\begin{itemize}
+    \item \textbf{Operator Fusion:} Combining adjacent layers (e.g., Linear + ReLU) into a single kernel to reduce memory fetches.  
+    \item \textbf{Integer-Only Arithmetic:} All multiplications and accumulations are performed using INT8 arithmetic.  
+    \item \textbf{Static Quantization:} Calibration data is used to precompute scale and zero-point values before deployment.
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{images/paper2_quantization_results.png}
+\caption{Quantization impact on model size and inference latency.}
+\end{figure}
+
+\subsection{Results and Discussion}
+Quantized transformers demonstrated significant performance gains with minimal accuracy loss:
+\begin{itemize}
+    \item Model size reduction: 4–5× smaller than original floating-point models.  
+    \item Latency reduction: Average inference time decreased from 220 ms to 60 ms ($\approx$ 3.6$\times$ speedup).  
+    \item Energy savings: Up to 68\% lower power consumption on Jetson Nano.  
+    \item Accuracy drop: Less than 2.5\% on most NLP tasks.
+\end{itemize}
+
+A comparative performance equation can be expressed as:
+\[
+\text{Efficiency Gain} = \frac{T_{fp32}}{T_{int8}} \times \frac{P_{fp32}}{P_{int8}}
+\]
+where \( T \) denotes latency and \( P \) denotes power.  
+Higher values imply improved computational efficiency.
+
+The study also presents an empirical trade-off between model compression and accuracy retention:
+\[
+\text{Trade-Off Index (TI)} = \frac{\text{Accuracy}_{int8}}{\text{ModelSize}_{fp32}/\text{ModelSize}_{int8}}
+\]
+where a TI closer to 1.0 indicates an optimal compression-performance balance.
+
+\subsection{Comparative Analysis}
+The results show that QAT consistently outperforms PTQ in accuracy retention but requires approximately 20–30\% more training time.  
+The choice between them depends on the deployment scenario:
+\begin{itemize}
+    \item For static applications (e.g., keyword spotting), PTQ is adequate.  
+    \item For adaptive systems requiring on-device learning, QAT is preferable.
+\end{itemize}
+
+The findings also highlight the synergy between quantization and other compression techniques such as pruning and knowledge distillation.  
+When combined, these methods achieve compression ratios exceeding 10× while maintaining near-baseline accuracy.
+
+\subsection{Strengths, Limitations, and Relevance}
+\textbf{Strengths:}  
+\begin{itemize}
+    \item Comprehensive hardware-based evaluation, demonstrating real-world feasibility.  
+    \item Integration of both PTQ and QAT in a unified framework.  
+    \item Clear quantification of energy efficiency and latency improvements.
+\end{itemize}
+
+\textbf{Limitations:}  
+\begin{itemize}
+    \item Focused primarily on inference; training quantization not explored.  
+    \item Limited dataset diversity and absence of multilingual testing.  
+\end{itemize}
+
+\textbf{Relevance:}  
+This paper directly aligns with the base paper’s goal of optimizing transformer scalability.  
+It provides practical evidence that low-precision arithmetic is a viable solution for efficient NLP deployment, supporting the broader agenda of scaling up transformers while reducing resource demand.
+\section{Paper 3: DistilBERT — A Distilled Version of BERT: Smaller, Faster, Cheaper and Lighter \cite{sanh2019}}
+
+\subsection{Motivation}
+Sanh \textit{et al.} (2019) introduce DistilBERT, a pioneering approach to model compression that reduces the size of large transformer models while retaining most of their performance.  
+The motivation arises from the observation that massive transformer architectures like BERT, although powerful, are computationally expensive and memory intensive, making them unsuitable for deployment in edge and real-time systems.  
+The authors aim to compress BERT into a smaller model that preserves 97\% of its language understanding capabilities while being 60\% faster and 40\% smaller.
+
+The primary goal of DistilBERT is not merely to prune parameters but to \textit{transfer knowledge} from a large “teacher” model (BERT) to a compact “student” model through a process known as \textbf{knowledge distillation}.  
+This allows lightweight models to perform comparably to their larger counterparts on a wide range of NLP tasks.
+
+\subsection{Methodology}
+The distillation process follows the teacher–student paradigm proposed by Hinton \textit{et al.}, where the student network learns to mimic the teacher’s outputs and intermediate representations.
+
+\begin{itemize}
+    \item \textbf{Teacher Model:} Pre-trained BERT-base with 12 transformer layers, each consisting of multi-head self-attention and feed-forward networks.  
+    \item \textbf{Student Model:} 6-layer transformer architecture that mirrors the teacher’s depth structure but with reduced dimensionality.  
+\end{itemize}
+
+\subsubsection{Knowledge Distillation Objective}
+The overall training objective is a weighted sum of three components:
+
+\[
+\mathcal{L}_{total} = \alpha \mathcal{L}_{\text{CE}} + \beta \mathcal{L}_{\text{KLD}} + \gamma \mathcal{L}_{\text{COS}}
+\]
+
+Where:
+\begin{itemize}
+    \item \( \mathcal{L}_{\text{CE}} \): Cross-entropy loss between student predictions and ground truth labels.  
+    \item \( \mathcal{L}_{\text{KLD}} \): Kullback–Leibler divergence between the soft probability distributions of teacher (\( p_T \)) and student (\( p_S \)) models:
+    \[
+    \mathcal{L}_{\text{KLD}} = \tau^2 \sum_i p_T^{(i)} \log \frac{p_T^{(i)}}{p_S^{(i)}}
+    \]
+    where \( \tau \) is the temperature scaling parameter controlling softmax sharpness.
+    \item \( \mathcal{L}_{\text{COS}} \): Cosine embedding loss ensuring vector alignment of hidden states:
+    \[
+    \mathcal{L}_{\text{COS}} = 1 - \frac{h_T \cdot h_S}{\| h_T \| \| h_S \|}
+    \]
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{images/paper3_distillation_pipeline.png}
+\caption{Knowledge distillation pipeline transferring knowledge from teacher (BERT) to student (DistilBERT).}
+\end{figure}
+
+\subsubsection{Training Procedure}
+The training data comprises multiple GLUE benchmark tasks, and the following hyperparameters are used:
+\begin{itemize}
+    \item Optimizer: AdamW with learning rate \( 5 \times 10^{-5} \).  
+    \item Batch size: 64.  
+    \item Warm-up steps: 10,000.  
+    \item Temperature: \( \tau = 2 \).  
+\end{itemize}
+The model employs mixed-precision training to accelerate convergence and reduce GPU memory usage.
+
+\subsection{Results and Discussion}
+DistilBERT retains 97\% of BERT’s performance on GLUE tasks while achieving:
+\begin{itemize}
+    \item 2.5× faster inference speed.  
+    \item 40\% fewer parameters (from 110M to 66M).  
+    \item Only 2\% average accuracy degradation compared to BERT-base.
+\end{itemize}
+
+\noindent These improvements highlight that most of BERT’s linguistic understanding can be compressed into a smaller latent space.  
+The paper also demonstrates that DistilBERT maintains contextual embedding quality as validated through cosine similarity metrics and probing tasks.
+
+\subsection{Strengths, Limitations, and Relevance}
+\textbf{Strengths:}  
+\begin{itemize}
+    \item Provides a reproducible framework for model compression using distillation.  
+    \item Maintains interpretability and generalization across multiple tasks.  
+\end{itemize}
+\textbf{Limitations:}  
+\begin{itemize}
+    \item Limited to English corpora; multilingual generalization not addressed.  
+    \item Distillation performance depends heavily on the teacher model’s robustness.
+\end{itemize}
+\textbf{Relevance:}  
+This paper exemplifies efficiency-oriented design, directly supporting the objectives of the base paper by showing how optimization can enhance transformer deployment without sacrificing linguistic depth.
+
+\newpage
+
+\section{Paper 4: Performance Analysis of Transformer-Based Models (BERT, ALBERT, and RoBERTa) in Fake News Detection \cite{azizah2023}}
+
+\subsection{Motivation}
+Azizah \textit{et al.} (2023) investigate the real-world applicability of transformer architectures in misinformation detection.  
+With the exponential rise of online disinformation, transformer-based NLP systems play a crucial role in validating authenticity and protecting knowledge integrity.  
+The authors focus on comparing the performance and efficiency of BERT, ALBERT, and RoBERTa in a fake-news classification context.
+
+\subsection{Methodology}
+The paper uses an Indonesian-language dataset containing 10,000 labeled news samples.  
+Preprocessing includes tokenization, lowercasing, and stop-word removal.  
+Each transformer variant follows a fine-tuning process using binary cross-entropy loss:
+\[
+\mathcal{L} = -\frac{1}{N}\sum_{i=1}^{N} [ y_i \log p_i + (1 - y_i)\log (1 - p_i) ]
+\]
+where \( y_i \) is the true label and \( p_i \) is the predicted probability.
+
+\begin{itemize}
+    \item \textbf{BERT:} Standard 12-layer encoder model.  
+    \item \textbf{ALBERT:} Uses parameter sharing across layers to reduce size:
+    \[
+    H_l = f(W_e X_l + b_e)
+    \]
+    with embedding factorization \( W_e = W_p W_c \) separating projection and context dimensions.
+    \item \textbf{RoBERTa:} Extends BERT by employing dynamic masking and larger mini-batches.
+\end{itemize}
+
+Each model is fine-tuned using the Adam optimizer (\( \eta = 2 \times 10^{-5} \)) with batch size 32 for 5 epochs.  
+Evaluation metrics include Accuracy, Precision, Recall, F1-score, and runtime per epoch.
+
+\subsection{Results and Discussion}
+The experimental results reveal distinct trade-offs:
+\begin{itemize}
+    \item \textbf{BERT:} Achieves strong accuracy (85.3\%) but requires the highest training time.  
+    \item \textbf{ALBERT:} Attains optimal efficiency (87.6\% accuracy) with 40\% lower runtime due to parameter sharing.  
+    \item \textbf{RoBERTa:} Shows strong F1-score (86.4\%) but higher energy consumption due to extended training cycles.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Performance Comparison of Transformer Models for Fake News Detection}
+\begin{tabular}{lccc}
+\hline
+Model & Accuracy (\%) & F1-Score (\%) & Runtime (s/epoch) \\
+\hline
+BERT & 85.3 & 84.7 & 212.4 \\
+ALBERT & \textbf{87.6} & \textbf{86.9} & \textbf{174.5} \\
+RoBERTa & 86.8 & 86.4 & 201.7 \\
+\hline
+\end{tabular}
+\end{table}
+
+ALBERT’s architecture exhibits superior parameter efficiency, with compression ratio \( R_c \) defined as:
+\[
+R_c = \frac{N_{BERT}}{N_{ALBERT}}
+\]
+where \( N \) denotes total parameter count.  
+For ALBERT, \( R_c \approx 1.8 \), implying a nearly 45\% reduction in parameter overhead with minimal accuracy loss.
+
+\subsection{Strengths, Limitations, and Relevance}
+\textbf{Strengths:}  
+\begin{itemize}
+    \item Comprehensive empirical comparison across three transformer architectures.  
+    \item Incorporates both performance and efficiency metrics for practical assessment.  
+\end{itemize}
+\textbf{Limitations:}  
+\begin{itemize}
+    \item Dataset limited to Indonesian news sources, reducing cross-lingual generalizability.  
+    \item Absence of adversarial robustness testing.  
+\end{itemize}
+\textbf{Relevance:}  
+Demonstrates that architectural optimization (parameter sharing, dynamic masking) can yield high efficiency without compromising performance.  
+This aligns with the base paper’s focus on scaling efficiency through architectural and training-level optimization.
+
+\newpage
+
+\section{Summary of Literature Review}
+The four reviewed papers collectively map the evolution of transformer optimization and application from generative pre-training to efficient deployment.
+
+\subsection*{Key Insights}
+\begin{itemize}
+    \item \textbf{From GPT to DistilBERT:} The literature reveals a clear trajectory from capacity scaling (GPT) to efficiency scaling (DistilBERT, ALBERT).  
+    \item \textbf{Optimization Spectrum:} Quantization (Ur Rahman \textit{et al.}) and distillation (Sanh \textit{et al.}) target different ends of the efficiency spectrum — one focusing on hardware-level compression, the other on representational compression.  
+    \item \textbf{Architecture Trade-offs:} ALBERT and RoBERTa experiments prove that parameter sharing and dynamic masking achieve scalable efficiency without catastrophic performance degradation.  
+    \item \textbf{Theoretical Alignment:} All four works support the base paper’s thesis — that scaling transformer models efficiently requires a holistic integration of architectural, algorithmic, and hardware-level optimizations.
+\end{itemize}
+
+\subsection*{Connection to Base Paper}
+The base paper, “Scaling Up the Transformers: A Survey of Training and Inference Optimization Techniques,” consolidates these diverse strategies into a unified framework for scalable and sustainable model training.  
+The reviewed works establish the groundwork:
+\begin{enumerate}
+    \item GPT provides the foundation for large-scale architecture design.  
+    \item Quantized transformers validate resource-efficient deployment.  
+    \item DistilBERT demonstrates representational compactness through knowledge transfer.  
+    \item Transformer comparison studies illustrate architectural optimization trade-offs.
+\end{enumerate}
+
+Together, these papers form a continuous chain of innovation that spans the entire lifecycle of transformer evolution — from conception and scaling to compression and real-world deployment.

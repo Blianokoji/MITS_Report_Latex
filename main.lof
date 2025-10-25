@@ -1,0 +1,22 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Generic Transformer encoder–decoder architecture highlighting self-attention and feed-forward layers.}}{13}{}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Comparison of GPT architectures from GPT-1 to GPT-4.}}{25}{}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Evolution of GPT architecture and scaling parameters.}}{26}{}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Enabling technologies underlying GPT model families, including attention, optimization, and fine-tuning.}}{27}{}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Quantization impact on model size and inference latency.}}{30}{}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Knowledge distillation pipeline transferring knowledge from teacher (BERT) to student (DistilBERT).}}{33}{}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Quantization in edge transformers (Ur Rahman et al., 2023) versus multi-layer optimization strategy (Jahangir et al., 2024).}}{42}{}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Distillation process (Sanh et al., 2019) versus multi-layer unified optimization (Jahangir et al., 2024).}}{42}{}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Performance comparison of BERT, ALBERT, and RoBERTa versus system-level optimization focus of Jahangir et al. (2024).}}{43}{}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Training optimization techniques improving efficiency and convergence stability \cite {jahangir2024}.}}{46}{}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Comparison of inference optimization techniques in Jahangir et al. (2024).}}{47}{}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Gradient stability achieved by adaptive learning-rate optimizers \cite {jahangir2024}.}}{48}{}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Effect of regularization and augmentation on fine-tuning accuracy \cite {jahangir2024}.}}{49}{}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces \large \textbf {Base Paper:}\\[0.2cm] H. Jahangir, S. K. Goel and S. Khurana, "Scaling Up the Transformers: A Survey of Training and Inference Optimization Techniques," \textit {ICEECT 2024}, pp. 1–6.}}{66}{}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces \large \textbf {Paper 1:}\\[0.2cm] G. Yenduri et al., "GPT — A Comprehensive Review on Enabling Technologies, Potential Applications, Emerging Challenges, and Future Directions," \textit {IEEE Access}, 2024.}}{67}{}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces \large \textbf {Paper 2:}\\[0.2cm] M. W. Ur Rahman et al., "Quantized Transformer Language Model Implementations on Edge Devices," \textit {ICMLA 2023}, pp. 709–716.}}{68}{}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces \large \textbf {Paper 3:}\\[0.2cm] V. Sanh, L. Debut, J. Chaumond, and T. Wolf, "DistilBERT — A Distilled Version of BERT: Smaller, Faster, Cheaper and Lighter," \textit {arXiv preprint arXiv:1910.01108}, 2019.}}{69}{}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces \large \textbf {Paper 4:}\\[0.2cm] S. F. N. Azizah et al., "Performance Analysis of Transformer-Based Models (BERT, ALBERT, and RoBERTa) in Fake News Detection," \textit {ICOIACT 2023}, pp. 425–430.}}{70}{}%

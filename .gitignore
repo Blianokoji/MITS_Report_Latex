@@ -1,0 +1,8 @@
+# Ignore all images in the images/ directory
+images/**
+
+# If you want to keep the directory in git, create an empty file images/.gitkeep
+# and uncomment the following line to allow tracking that file only:
+# !images/.gitkeep
+
+

@@ -1,0 +1,96 @@
+\contentsline {chapter}{Abstract}{6}{}%
+\contentsline {chapter}{List of Figures}{7}{}%
+\contentsline {chapter}{List of Tables}{9}{}%
+\contentsline {chapter}{List of Abbreviations}{10}{}%
+\contentsline {chapter}{\numberline {1}Introduction}{11}{}%
+\contentsline {section}{\numberline {1.1}Transformers in Natural Language Processing}{11}{}%
+\contentsline {section}{\numberline {1.2}Evolution of Transformer Models}{12}{}%
+\contentsline {subsection}{\numberline {1.2.1}The Pre-Training Revolution}{12}{}%
+\contentsline {subsection}{\numberline {1.2.2}The Scaling Era}{13}{}%
+\contentsline {subsection}{\numberline {1.2.3}The Optimization Era}{14}{}%
+\contentsline {subsection}{\numberline {1.2.4}Interconnected Advances}{15}{}%
+\contentsline {section}{\numberline {1.3}Scaling Challenges and Optimization Techniques}{16}{}%
+\contentsline {subsection}{\numberline {1.3.1}1. Computational Complexity}{16}{}%
+\contentsline {subsection}{\numberline {1.3.2}2. Memory Optimization}{16}{}%
+\contentsline {subsection}{\numberline {1.3.3}3. Optimization Algorithms}{17}{}%
+\contentsline {subsection}{\numberline {1.3.4}4. Hardware-Aware Model Design}{17}{}%
+\contentsline {subsection}{\numberline {1.3.5}5. Energy Efficiency and Sustainability}{17}{}%
+\contentsline {subsection}{\numberline {1.3.6}6. Distributed Training Strategies}{18}{}%
+\contentsline {section}{\numberline {1.4}Applications in Human Knowledge Enhancement}{18}{}%
+\contentsline {subsection}{\numberline {1.4.1}Education and Personalized Learning}{18}{}%
+\contentsline {subsection}{\numberline {1.4.2}Healthcare and Medical Informatics}{19}{}%
+\contentsline {subsection}{\numberline {1.4.3}Scientific Research and Knowledge Discovery}{19}{}%
+\contentsline {subsection}{\numberline {1.4.4}Governance, Policy, and Social Knowledge Systems}{19}{}%
+\contentsline {subsection}{\numberline {1.4.5}Information Retrieval and Knowledge Graphs}{20}{}%
+\contentsline {subsection}{\numberline {1.4.6}Creative Industries and Human–AI Collaboration}{20}{}%
+\contentsline {section}{\numberline {1.5}Summary of Related Works}{21}{}%
+\contentsline {subsection}{\numberline {1.5.1}Synthesis of Key Contributions}{21}{}%
+\contentsline {subsection}{\numberline {1.5.2}Relation to the Base Paper}{21}{}%
+\contentsline {subsection}{\numberline {1.5.3}Research Implications}{22}{}%
+\contentsline {section}{\numberline {1.6}Conclusion of Introduction}{23}{}%
+\contentsline {chapter}{\numberline {2}Literature Survey}{24}{}%
+\contentsline {section}{\numberline {2.1}Paper 1: GPT (Generative Pre-Trained Transformer)—A Comprehensive Review on Enabling Technologies, Potential Applications, Emerging Challenges, and Future Directions \cite {yenduri2024}}{24}{}%
+\contentsline {subsection}{\numberline {2.1.1}Motivation}{24}{}%
+\contentsline {subsection}{\numberline {2.1.2}Model Overview and Methodology}{24}{}%
+\contentsline {subsection}{\numberline {2.1.3}Training and Optimization Techniques}{25}{}%
+\contentsline {subsection}{\numberline {2.1.4}Applications and Societal Impact}{26}{}%
+\contentsline {subsection}{\numberline {2.1.5}Results and Discussion}{27}{}%
+\contentsline {subsection}{\numberline {2.1.6}Strengths, Limitations, and Relevance}{27}{}%
+\contentsline {section}{\numberline {2.2}Paper 2: Quantized Transformer Language Model Implementations on Edge Devices \cite {urrahman2023}}{28}{}%
+\contentsline {subsection}{\numberline {2.2.1}Motivation}{28}{}%
+\contentsline {subsection}{\numberline {2.2.2}Methodology}{28}{}%
+\contentsline {subsubsection}{Quantization Process}{28}{}%
+\contentsline {subsubsection}{Post-Training Quantization (PTQ)}{29}{}%
+\contentsline {subsubsection}{Quantization-Aware Training (QAT)}{29}{}%
+\contentsline {subsubsection}{Experimental Setup}{29}{}%
+\contentsline {subsection}{\numberline {2.2.3}Implementation Framework}{29}{}%
+\contentsline {subsection}{\numberline {2.2.4}Results and Discussion}{30}{}%
+\contentsline {subsection}{\numberline {2.2.5}Comparative Analysis}{31}{}%
+\contentsline {subsection}{\numberline {2.2.6}Strengths, Limitations, and Relevance}{31}{}%
+\contentsline {section}{\numberline {2.3}Paper 3: DistilBERT — A Distilled Version of BERT: Smaller, Faster, Cheaper and Lighter \cite {sanh2019}}{31}{}%
+\contentsline {subsection}{\numberline {2.3.1}Motivation}{31}{}%
+\contentsline {subsection}{\numberline {2.3.2}Methodology}{32}{}%
+\contentsline {subsubsection}{Knowledge Distillation Objective}{32}{}%
+\contentsline {subsubsection}{Training Procedure}{32}{}%
+\contentsline {subsection}{\numberline {2.3.3}Results and Discussion}{33}{}%
+\contentsline {subsection}{\numberline {2.3.4}Strengths, Limitations, and Relevance}{33}{}%
+\contentsline {section}{\numberline {2.4}Paper 4: Performance Analysis of Transformer-Based Models (BERT, ALBERT, and RoBERTa) in Fake News Detection \cite {azizah2023}}{35}{}%
+\contentsline {subsection}{\numberline {2.4.1}Motivation}{35}{}%
+\contentsline {subsection}{\numberline {2.4.2}Methodology}{35}{}%
+\contentsline {subsection}{\numberline {2.4.3}Results and Discussion}{35}{}%
+\contentsline {subsection}{\numberline {2.4.4}Strengths, Limitations, and Relevance}{36}{}%
+\contentsline {section}{\numberline {2.5}Summary of Literature Review}{37}{}%
+\contentsline {chapter}{\numberline {3}Methodology, Comparison, and Technical Analysis of the Base Paper}{38}{}%
+\contentsline {section}{\numberline {3.1}Methodology of the Base Paper}{39}{}%
+\contentsline {subsection}{\numberline {3.1.1}Research Scope and Categorization}{39}{}%
+\contentsline {subsection}{\numberline {3.1.2}Data Analysis Framework}{39}{}%
+\contentsline {subsection}{\numberline {3.1.3}Survey Methodology and Inclusion Criteria}{40}{}%
+\contentsline {subsection}{\numberline {3.1.4}Analytical Synthesis}{40}{}%
+\contentsline {section}{\numberline {3.2}Comparison of Base Paper with Reviewed Works}{41}{}%
+\contentsline {subsection}{\numberline {3.2.1}Comparison with Yenduri et al. (2024) – GPT Review}{41}{}%
+\contentsline {subsection}{\numberline {3.2.2}Comparison with Ur Rahman et al. (2023) – Quantized Transformers}{41}{}%
+\contentsline {subsection}{\numberline {3.2.3}Comparison with Sanh et al. (2019) – DistilBERT}{42}{}%
+\contentsline {subsection}{\numberline {3.2.4}Comparison with Azizah et al. (2023) – Transformer Efficiency in Fake News Detection}{42}{}%
+\contentsline {section}{\numberline {3.3}Tabular Comparison of Reviewed Works}{44}{}%
+\contentsline {section}{\numberline {3.4}Technical Analysis of the Base Paper}{45}{}%
+\contentsline {subsection}{\numberline {3.4.1}Training Optimization Framework}{45}{}%
+\contentsline {subsection}{\numberline {3.4.2}Inference Optimization and Acceleration}{45}{}%
+\contentsline {subsection}{\numberline {3.4.3}Gradient and Regularization Analysis}{45}{}%
+\contentsline {subsection}{\numberline {3.4.4}Accuracy–Efficiency Trade-offs}{45}{}%
+\contentsline {section}{\numberline {3.5}Summary}{46}{}%
+\contentsline {chapter}{\numberline {4}Conclusion and Future Work}{50}{}%
+\contentsline {section}{\numberline {4.1}Conclusion}{50}{}%
+\contentsline {subsection}{\numberline {4.1.1}Evolution of Transformers and Knowledge Enhancement}{50}{}%
+\contentsline {subsection}{\numberline {4.1.2}Key Insights and Thematic Synthesis}{51}{}%
+\contentsline {subsection}{\numberline {4.1.3}The Role of Optimization in Human Knowledge Amplification}{51}{}%
+\contentsline {section}{\numberline {4.2}Future Work}{52}{}%
+\contentsline {subsection}{\numberline {4.2.1}1. Explainability and Transparency}{52}{}%
+\contentsline {subsection}{\numberline {4.2.2}2. Energy Efficiency and Sustainable AI}{52}{}%
+\contentsline {subsection}{\numberline {4.2.3}3. Multimodal and Cross-Domain Learning}{53}{}%
+\contentsline {subsection}{\numberline {4.2.4}4. Multilingual and Low-Resource Language Models}{53}{}%
+\contentsline {subsection}{\numberline {4.2.5}5. Integration with Edge and Federated Systems}{53}{}%
+\contentsline {subsection}{\numberline {4.2.6}6. Ethical and Societal Dimensions}{54}{}%
+\contentsline {subsection}{\numberline {4.2.7}7. Cognitive Synergy Between Humans and Transformers}{54}{}%
+\contentsline {subsection}{\numberline {4.2.8}Closing Perspective}{54}{}%
+\contentsline {chapter}{\textbf {Appendix A:} Seminar Presentation Slides}{56}{}%
+\contentsline {chapter}{Appendix B: Reference Papers}{65}{}%
