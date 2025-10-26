@@ -1,0 +1,150 @@
+\chapter{Results and Discussion}\label{chap:results_discussion}
+
+\section{Experimental Setup}
+
+The authors evaluated the performance of four GPU-based DFA minimization algorithms—TRANS, NaivePR, SortPR, and TransPR—through a series of experiments designed to analyze both computational efficiency and scalability. The experiments were conducted to determine how well each algorithm performs under varying DFA complexities and transition densities.
+
+Each algorithm was implemented using CUDA and executed on a NVIDIA RTX 4090 GPU with 24 GB of VRAM. The host system utilized an AMD Ryzen 9 7950X processor and 64 GB DDR5 memory, ensuring that the CPU did not become a bottleneck during GPU operations. The software stack consisted of CUDA 12.2, g++ 11.4, and Linux kernel 6.8.
+
+The experiments were structured to isolate three key factors:
+\begin{itemize}
+\item Runtime performance: the total time taken for complete DFA minimization.
+\item Memory efficiency: total GPU memory consumed per algorithm.
+\item Scalability: how execution time varies as the size and density of the DFA increase.
+\end{itemize}
+
+Each benchmark was repeated ten times, and the reported values represent average results to reduce the influence of random GPU scheduling fluctuations.
+
+\subsection{Benchmark Datasets}
+
+The evaluation used three distinct DFA families that represent a diverse range of structural and transition characteristics. These are standard in automata theory benchmarking and are detailed in Table 1 of the base paper (Martens \& Wijs, 2024).
+
+\textbf{Fibonacci DFAs:}
+These automata grow recursively in state count and exhibit moderate transition density. They are ideal for studying scalability with respect to automata size. Each DFA in this set contains between 1,000 and 30,000 states.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth,keepaspectratio]{images/febonacci.png} 
+  \caption{Example Fibonacci DFA}
+  \label{fig:fibonacci}
+\end{figure}
+
+\textbf{Bit-Splitter DFAs:}
+Characterized by high branching factors and complex transition patterns, these DFAs simulate dense automata commonly encountered in hardware verification and lexical analysis tasks. They stress-test memory usage and warp divergence.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,keepaspectratio]{images/bits.png}
+  \caption{Bit-Splitter DFA}
+  \label{fig:bit-splitter}
+\end{figure}
+
+\textbf{VLTS (Very Large Transition System) Models:}
+These represent realistic state machines derived from model-checking applications. They include sparse as well as dense transitions, making them ideal for assessing generalization and robustness.
+
+Together, these datasets ensure coverage across both theoretical and application-driven DFA structures, allowing the evaluation of each algorithm’s behavior under varied workloads.
+
+\subsection{Performance Metrics}
+
+The study employed several quantitative metrics to evaluate and compare the algorithms:
+\begin{itemize}
+\item Execution Time (T): The total duration (in milliseconds) taken by each algorithm to complete minimization.
+\item Memory Footprint (M): Peak GPU memory usage recorded during runtime.
+\item Scalability Index (S): A derived metric quantifying performance degradation rate as DFA size increases.
+\item Speedup Ratio (SR): Ratio of runtime between sequential baseline (Hopcroft’s CPU implementation) and the GPU-accelerated algorithm.
+\item Equivalence Accuracy (EA): Percentage of DFAs correctly minimized to equivalent forms as verified by language-equivalence checks.
+\end{itemize}
+
+These metrics collectively measure computational efficiency, scalability, and correctness of the produced minimized DFAs.
+
+\section{Performance Evaluation}
+
+The evaluation compared the four algorithms both quantitatively and qualitatively. Each subsection below summarizes their observed behavior and trade-offs.
+
+\subsection{TRANS Algorithm Performance}
+
+The TRANS algorithm, based on transitive closure computation, provided the most predictable and mathematically precise results but suffered from high memory consumption.
+As seen in Table 2 (Runtime and Memory Results) of the base paper, TRANS achieved correct minimization in all test cases but required O(n²) space, making it unsuitable for DFAs with more than 50,000 states.
+
+For smaller automata (≤10,000 states), TRANS was competitive, showing speedups of up to 20× compared to the CPU baseline. However, runtime increased sharply for dense automata due to the quadratic number of state-pair checks.
+The closure propagation kernel dominated GPU time, particularly during repeated iterations to ensure full convergence.
+
+Overall, TRANS serves as a theoretical upper bound in correctness but a practical lower bound in efficiency.
+
+(Refer to Algorithm 1: TRANS Algorithm and Table 2 in the base paper for detailed timing results.)
+
+\subsection{NaivePR Algorithm Performance}
+
+The Naive Partition Refinement (NaivePR) algorithm displayed more favorable scaling properties but required multiple iterations for convergence. Its runtime grew linearly with the number of states but exhibited high variance depending on DFA density.
+
+Compared to TRANS, NaivePR reduced memory usage by nearly 70\% and handled up to 200,000 states comfortably.
+However, due to repeated global sorting of state signatures, it often required 10–15 iterations before stabilization, leading to increased cumulative kernel execution time.
+
+Despite these inefficiencies, NaivePR achieved an average speedup of 35× over the CPU baseline on the Fibonacci dataset, making it one of the most space-efficient GPU implementations.
+
+(Refer to Algorithm 2: NaivePR for pseudocode representation.)
+
+\subsection{SortPR Algorithm Performance}
+
+The SortPR algorithm emerged as one of the most efficient methods tested. By leveraging sorting-based grouping of state signatures, it reduced redundant comparisons and improved convergence rates dramatically.
+
+For mid-sized automata (10,000–80,000 states), SortPR achieved the best balance between runtime and memory utilization. The use of parallel radix sorting allowed efficient partitioning with minimal divergence.
+It consistently outperformed NaivePR by 1.5–2×, especially in DFAs with large alphabets, where its hash-compressed signatures avoided excessive sorting overhead.
+
+However, SortPR’s performance degraded slightly for very large automata due to increased shared-memory contention during signature merging.
+
+(Refer to Algorithm 3: SortPR for implementation details and corresponding performance graphs in Table 2.)
+
+\subsection{TransPR Algorithm Performance}
+
+The TransPR algorithm, which integrates transitive closure selectively within partition refinement, provided the best overall performance across all datasets.
+It combined the theoretical rigor of TRANS with the efficiency of SortPR, using partial closures to preempt unnecessary refinement iterations.
+
+On the VLTS benchmark, TransPR reduced total iterations by nearly 60\% compared to SortPR and achieved a runtime speedup of 52× over the sequential baseline.
+Memory usage remained moderate, roughly midway between NaivePR and SortPR, indicating good trade-offs between precision and efficiency.
+
+This hybrid model demonstrated stable scalability, effectively maintaining near-linear performance as the number of states grew beyond 100,000.
+
+(Refer to Algorithm 4: TransPR for detailed pseudocode and Table 2 for comparative timings.)
+
+\section{Comparative Analysis}
+
+To understand relative performance, the study compared all four algorithms along two primary axes—runtime scalability and memory efficiency—using results summarized in Table 2 of the base paper.
+
+\textbf{Runtime Comparison:}
+\begin{itemize}
+\item TRANS exhibited exponential growth in runtime beyond 50,000 states.
+\item NaivePR scaled linearly but with high iteration overhead.
+\item SortPR maintained stable sublinear scaling across all benchmarks.
+\item TransPR delivered the best runtime–scalability balance overall.
+\end{itemize}
+
+\textbf{Memory Usage Comparison:}
+\begin{itemize}
+\item TRANS required the largest memory allocation (~O(n²)).
+\item NaivePR consumed the least memory.
+\item SortPR and TransPR maintained moderate usage, optimized through compression and shared memory buffers.
+\end{itemize}
+
+\textbf{Accuracy and Robustness:}
+\begin{itemize}
+\item All four algorithms produced identical minimized DFAs, verifying correctness.
+\item TransPR exhibited the fastest convergence while maintaining equivalence guarantees.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,keepaspectratio]{images/result.png} 
+  \caption{Summary results for partition-refinement algorithms (Table 2)}
+  \label{fig:results-table}
+\end{figure}
+
+\section{Discussion and Observations}
+
+From the results, several key conclusions emerge:
+\begin{itemize}
+\item Algorithmic Balance: Purely theoretical approaches like TRANS are accurate but impractical for large DFAs, while refinement-based methods such as SortPR and TransPR achieve real-world scalability.
+\item Hardware Utilization: The experiments confirm that efficient use of GPU parallelism (via sorting, prefix scans, and shared memory) can achieve orders-of-magnitude speedups over CPU-based minimization.
+\item Dataset Sensitivity: Fibonacci DFAs stressed iteration depth; Bit-Splitter DFAs revealed memory limitations; VLTS datasets validated scalability across mixed densities.
+\item Best Overall Performer: TransPR consistently outperformed others in both runtime and scalability while maintaining accuracy—proving to be the most practical solution for massively parallel DFA minimization.
+\end{itemize}

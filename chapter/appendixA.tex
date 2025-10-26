@@ -1,33 +1,13 @@
 \clearpage
-\phantomsection
+\phantomsection{}
 \addcontentsline{toc}{chapter}{\textbf{Appendix A:} Seminar Presentation Slides}
 \label{appendixA}
 
 % --- Title + first 2 slides on the same page ---
 \includepdf[
-  pages=1-2,
-  nup=1x2,
-  frame=true,
-  scale=0.95,
-  pagecommand={
-    \vspace*{-1cm}
-    \begin{center}
-        {\LARGE \textbf{Appendix A: Seminar Presentation Slides}}\\[0.3cm]
-    \end{center}
-  }
+  pages=-,          % include all slides
+  nup=1x2,          % 2 slides per page (stacked) % chktex 29
+  frame=true,       % borders around slides (remove if not wanted)
+  scale=0.95,       % fit within margins
+  pagecommand={}    % no extra header on each page
 ]{pdfs/seminar_ppt.pdf}
-
-% --- Next slides (3–4): two per page ---
-\includepdf[pages=3-4, nup=1x2, frame=true, scale=0.95, pagecommand={}]{pdfs/seminar_ppt.pdf}
-
-% --- Page 5 (single) ---
-\includepdf[pages=5, nup=1x1, frame=true, scale=0.95, pagecommand={}]{pdfs/seminar_ppt.pdf}
-
-% --- Pages 6–11: two per page ---
-\includepdf[pages=6-11, nup=1x2, frame=true, scale=0.95, pagecommand={}]{pdfs/seminar_ppt.pdf}
-
-% --- Page 12 (single) ---
-\includepdf[pages=12, nup=1x1, frame=true, scale=0.95, pagecommand={}]{pdfs/seminar_ppt.pdf}
-
-% --- Remaining slides: two per page ---
-\includepdf[pages=13-, nup=1x2, frame=true, scale=0.95, pagecommand={}]{pdfs/seminar_ppt.pdf}
