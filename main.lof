@@ -1,0 +1,11 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Algorithm 1: Transitive DFA minimization (trans)}}{24}{}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Algorithms 2 and 3: NaivePR leader-election variants (non-atomic and atomic)}}{26}{}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Algorithm 4: Parallel sorting-based algorithm (sortPR)}}{28}{}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Algorithm 5: Parallel partition refinement with transitive closure (transPR)}}{29}{}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Example Fibonacci DFA}}{33}{}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Bit-Splitter DFA}}{33}{}%
+\addvspace {10\p@ }

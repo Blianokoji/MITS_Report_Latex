@@ -1,72 +1,104 @@
-\chapter{Proposed Methodology}\label{chap:proposed_methodology}
+\chapter{Proposed Methodology}
+\label{chap:proposed_methodology}
 
 \section{System Architecture Overview}
 
-The base paper by Martens and Wijs (2024) presents a comprehensive and GPU-oriented framework for massively parallel DFA minimization. The methodology is structured to evaluate and compare three primary algorithmic families—transitive closure, partition refinement, and hybrid transitive-partition methods—within a unified experimental environment. Each algorithm is executed using optimized GPU kernels and benchmarked across diverse automata models.
+The proposed methodology builds upon the GPU-oriented framework described by Martens and Wijs~\cite{martenswijs2024}, which investigates the practical realization of massively parallel algorithms for deterministic finite automaton (DFA) minimization. The framework is designed to evaluate multiple algorithmic paradigms—each derived from well-established theoretical models—and adapt them to exploit the computational capabilities of modern graphics processing units (GPUs). 
 
-The central goal of the proposed system is to bridge the gap between theoretical parallel efficiency and practical GPU performance. While prior research (such as Hopcroft and Paige–Tarjan) established strong sequential foundations, and earlier PRAM-based work demonstrated theoretical parallelism, real-world scalability on GPUs remained underexplored. The proposed methodology, therefore, integrates algorithmic refinements, GPU kernel designs, and parallel primitives into a single, testable architecture.
+The primary objective of this methodology is to reconcile the gap between theoretical parallelism, established in classical works such as Hopcroft~\cite{hopcroft1971} and Paige–Tarjan~\cite{paigetarjan1987}, and real-world GPU execution efficiency. Earlier PRAM-based theoretical models, such as those explored by Tewari et al.~\cite{tewari2002}, established that DFA minimization belongs to Nick’s Class (NC), but did not provide implementable solutions that scale on physical hardware. The present framework seeks to bridge this divide through a unified GPU-based architecture capable of executing and comparing multiple parallel minimization strategies within a controlled experimental setup.
 
-The overall workflow can be divided into the following major stages:
+The framework evaluates three algorithmic families:
+\begin{enumerate}
+    \item \textbf{Transitive Closure-Based Minimization (TRANS)} — A theoretically complete, graph-oriented approach that models equivalence computation as a closure problem.
+    \item \textbf{Partition Refinement Algorithms (NaivePR, SortPR)} — Algorithms that iteratively split state partitions based on transition behavior, derived from Hopcroft and Paige–Tarjan’s frameworks.
+    \item \textbf{Hybrid Transitive-Partition Minimization (TransPR)} — An adaptive approach combining the transitive closure model with partition refinement to balance iteration depth and per-pass computation.
+\end{enumerate}
+
+Each algorithm follows a consistent input–output pipeline, differing primarily in how equivalence between states is computed and refined. By standardizing input formats, GPU kernel configurations, and validation stages, the architecture ensures fair cross-algorithm benchmarking and modular extensibility.
+
+\subsection{Workflow Structure}
+
+The methodology’s overall workflow comprises four major phases, each optimized for concurrent GPU execution:
+
 \begin{itemize}
-  \item Input and Preprocessing – Loading a deterministic finite automaton (DFA) and representing it in memory-efficient data structures suited for GPU processing (state-transition tables, bit vectors, and block encodings).
-  \item Parallel Minimization – Executing one of the four core algorithms (TRANS, NaivePR, SortPR, or TransPR) on GPU threads.
-  \item Refinement and Convergence Detection – Iteratively refining state partitions until convergence (no further splits occur).
-  \item Output Generation – Constructing the minimized DFA from the final partition set and exporting it for validation.
+    \item \textbf{Input and Preprocessing:} The DFA is parsed and transformed into GPU-compatible data structures, using compact, contiguous representations that maximize memory coalescing.
+    \item \textbf{Parallel Minimization:} One of the four core minimization algorithms (TRANS, NaivePR, SortPR, or TransPR) is executed using multiple CUDA kernels configured for data-parallel execution.
+    \item \textbf{Refinement and Convergence Detection:} Partition updates are performed iteratively until stabilization, with convergence checked using GPU-wide reduction kernels.
+    \item \textbf{Output Generation and Validation:} The minimized automaton is reconstructed from the final partition map and cross-verified for equivalence with the original input automaton.
 \end{itemize}
 
-Each algorithm uses the same input representation but employs different internal logic to determine equivalence among states. This consistency ensures fair comparison and modular design.
+This modular decomposition allows different algorithmic strategies to share the same execution environment, ensuring consistent memory handling, data access patterns, and timing metrics. The system design emphasizes minimal kernel-level synchronization and high warp occupancy to achieve near-optimal throughput.
 
 \section{Input Representation and Preprocessing}
 
-The initial step involves converting each DFA into a flat GPU-compatible structure. DFAs are represented as tuples (Q,Σ,δ,q0,F), where:
-
-Q is the set of states,
-Σ is the input alphabet,
-δ is the transition function,
-q0 is the start state, and
-F⊆Q is the set of accepting states.
-
-For GPU execution, the state transitions are stored in flattened adjacency arrays instead of linked structures. This eliminates pointer dereferencing and enables coalesced memory access—a critical optimization for GPU performance.
-
-To support parallel refinement, the following transformations are applied:
+The preprocessing stage converts a deterministic finite automaton (DFA) into a flat, GPU-compatible representation. Given a DFA defined as a 5-tuple $(Q, \Sigma, \delta, q_0, F)$, where:
 \begin{itemize}
-  \item State Encoding: Each state is assigned a numeric identifier, allowing O(1) indexing during transitions.
-  \item Transition Compression: Transitions are stored as tuples (source,symbol,destination) in contiguous memory blocks.
-  \item Block Mapping: States are grouped into initial partitions—typically “accepting” vs. “non-accepting”—forming the baseline for subsequent refinement steps.
+    \item $Q$ is the finite set of states,
+    \item $\Sigma$ is the input alphabet,
+    \item $\delta: Q \times \Sigma \rightarrow Q$ is the transition function,
+    \item $q_0$ is the initial state, and
+    \item $F \subseteq Q$ is the set of accepting states,
+\end{itemize}
+the goal is to encode $\delta$ and $F$ in memory structures conducive to coalesced GPU memory access and efficient thread mapping.
+
+\subsection{Data Transformation}
+
+Traditional CPU representations of DFAs employ pointer-based adjacency lists or transition matrices. However, pointer chasing and irregular access patterns degrade GPU performance. Therefore, all DFA transitions are flattened into contiguous arrays:
+\[
+\texttt{transitions}[i] = (\texttt{source}_i, \texttt{symbol}_i, \texttt{destination}_i)
+\]
+This representation guarantees unit-stride memory access and facilitates thread-level parallelism. 
+
+\paragraph{State Encoding:}  
+Each DFA state is assigned a unique integer ID in $[0, |Q|-1]$, permitting constant-time indexing of transitions. This enables straightforward mapping between transition entries and partition labels without branching logic.
+
+\paragraph{Transition Compression:}  
+Transitions are stored in three parallel arrays (source, symbol, destination), minimizing redundancy. Depending on alphabet size $|\Sigma|$, compressed encoding techniques (e.g., bit-packing for small alphabets) further reduce memory usage.
+
+\paragraph{Initial Partitioning:}  
+States are initially grouped into two blocks — accepting and non-accepting — forming the base partition for refinement algorithms. This structure is encoded as a \texttt{partition[]} array storing block identifiers for each state.
+
+\subsection{GPU Memory Preparation}
+
+To ensure efficient execution:
+\begin{itemize}
+    \item Transitions are aligned to 128-byte boundaries to match GPU cache lines.
+    \item Partition and transition arrays are stored in global memory, while block metadata resides in shared memory for frequent updates.
+    \item Precomputed offsets and index ranges are maintained for each alphabet symbol to enable symbol-specific kernel launches.
 \end{itemize}
 
-This preprocessing step ensures both space efficiency and parallel accessibility, two key factors for minimizing kernel-level synchronization overhead.
+This preprocessing step reduces inter-thread memory contention and lays the groundwork for scalable partition updates across thousands of parallel threads.
 
 \section{Core Minimization Algorithms}
 
-This section elaborates on the four algorithmic approaches studied and implemented in the proposed framework. Each algorithm has distinct theoretical characteristics and practical trade-offs regarding memory, thread utilization, and iteration count.
+The framework implements four core algorithms, each targeting different aspects of DFA equivalence computation. These algorithms share input and output formats but differ in intermediate computation methods and GPU optimization strategies.
 
-\subsection{3.3.1 TRANS — Transitive Closure-Based Minimization}
+\subsection{TRANS — Transitive Closure-Based Minimization}
 
-\textbf{Overview:}
-The TRANS algorithm is derived from classical graph-theoretic formulations of state equivalence. It computes the transitive closure over the distinguishability relation between states. In simple terms, if two states can be distinguished by some input string, their pair is marked as “not equivalent,” and this information is propagated through closure operations.
+\textbf{Overview:}  
+The TRANS algorithm models DFA minimization as a graph reachability problem. It constructs a \textit{pair graph}, where each node represents a pair of DFA states $(p, q)$. If two states are distinguishable under some input sequence, the pair $(p, q)$ is marked as non-equivalent, and this distinction is propagated through closure computations.
 
 \textbf{Algorithmic Flow:}
-\begin{itemize}
-  \item Pair Graph Construction: Each pair of states (p,q) forms a node in a conceptual pair graph.
-  \item Initial Marking: Pairs where one state is accepting and the other is not are marked as “distinguishable.”
-  \item Propagation: For each pair (p,q), the algorithm checks all alphabet symbols a∈Σ. If (δ(p,a),δ(q,a)) is distinguishable, then (p,q) must also be marked.
-  \item Transitive Closure Computation: This process is repeated until no new pairs are marked—effectively computing the fixed-point closure.
-\end{itemize}
+\begin{enumerate}
+    \item Construct a matrix representing all state pairs $(p, q)$.
+    \item Initially mark pairs where one state is accepting and the other is not.
+    \item Iteratively propagate distinguishability: if $(\delta(p,a), \delta(q,a))$ is marked, then mark $(p, q)$ as well.
+    \item Continue until no new pairs are marked—indicating closure stabilization.
+\end{enumerate}
 
-\textbf{Parallel Implementation:}
-On GPUs, the closure propagation is executed in bulk-synchronous iterations. Each thread evaluates one or more state pairs, updating a shared matrix representing distinguishability. Atomic operations are minimized through bitmap encodings and reduction kernels.
+\textbf{Parallelization:}  
+On GPUs, each thread is assigned one or more pairs $(p, q)$. Threads evaluate transitions in parallel and perform closure updates using shared bitmaps to represent distinguishability. The propagation phase is implemented as an iterative kernel launch where each pass updates the distinguishability matrix via bitwise OR operations.  
 
 \textbf{Advantages:}
 \begin{itemize}
-  \item Guarantees exact minimization equivalent to sequential algorithms.
-  \item Naturally parallelizable due to independence among pair evaluations.
+    \item Conceptually simple and mathematically complete.
+    \item Highly parallelizable—each pair computation is independent.
 \end{itemize}
 
 \textbf{Limitations:}
 \begin{itemize}
-  \item Memory cost is O(|Q|^2) since every state pair must be considered.
-  \item Closure iterations can be expensive for large automata.
+    \item Quadratic memory complexity $O(|Q|^2)$ restricts scalability.
+    \item Iterative closure computation can result in many synchronization rounds.
 \end{itemize}
 
 \begin{figure}[H]
@@ -76,40 +108,40 @@ On GPUs, the closure propagation is executed in bulk-synchronous iterations. Eac
   \label{fig:alg1-trans}
 \end{figure}
 
-\subsection{3.3.2 NaivePR — Baseline Partition Refinement Algorithm}
+\subsection{NaivePR — Baseline Partition Refinement Algorithm}
 
-\textbf{Overview:}
-The NaivePR algorithm represents a straightforward GPU adaptation of the Paige–Tarjan-style partition refinement method. It repeatedly splits state partitions based on transition behavior until stability is reached.
+\textbf{Overview:}  
+The NaivePR algorithm is a straightforward GPU adaptation of Paige–Tarjan-style refinement. It partitions the state set and repeatedly refines blocks until convergence. This method replaces sequential refinement queues with parallel signature computations, assigning one thread per state.
 
 \textbf{Algorithmic Flow:}
+\begin{enumerate}
+    \item Initialize two blocks: accepting and non-accepting states.
+    \item Compute for each state a \textit{signature}, defined as the vector of destination block IDs for each input symbol.
+    \item Sort states by signature; states sharing identical signatures form the same new block.
+    \item Repeat until partitions remain unchanged.
+\end{enumerate}
+
+\textbf{Leader Selection Variants:}
 \begin{itemize}
-  \item Initialization: Start with partitions separating accepting and non-accepting states.
-  \item Signature Computation: For each state, compute a signature consisting of the destination partitions of its transitions.
-  \item Block Splitting: States with identical signatures remain together; those with differing signatures form new blocks.
-  \item Iteration: Repeat until no partition changes occur.
+    \item \textit{Non-atomic (two-phase):} Leaders are elected in a first pass, and new block IDs are assigned in a second.
+    \item \textit{Atomic (single-phase):} Compare-and-swap (CAS) atomics are used to claim block leadership immediately.
 \end{itemize}
 
-\textbf{GPU Parallelization:}
-Each GPU thread computes the transition signature for one state. Parallel sorting (using radix or merge sort primitives) groups states with identical signatures efficiently. The “naive” label refers to the lack of optimization beyond direct mapping of the sequential logic.
+The atomic variant reduces synchronization rounds but may introduce contention under heavy concurrency.
 
-\paragraph{Leader selection variants.}
-Two implementations are used:
-\begin{itemize}
-  \item \textit{Non-atomic (two-phase) leader election} — first pass elects a leader for each block and writes it to \texttt{new\_leader[block]}; second pass splits states by following \texttt{new\_leader}. Corresponds to Algorithm 2 (no atomics).
-  \item \textit{Atomic leader election with CAS} — single pass where threads attempt to set \texttt{new\_leader[leader]} via compare-and-swap; successful claims trigger the split immediately. Corresponds to Algorithm 3 (with atomics).
-\end{itemize}
-Both variants yield identical partitions; the atomic version reduces passes at the cost of atomic contention.
+\textbf{Parallel Implementation:}  
+Each thread independently computes transition signatures. GPU sorting primitives such as radix sort are employed to group identical signatures efficiently. Reduction kernels detect stable partitions by comparing old and new block IDs.
 
 \textbf{Advantages:}
 \begin{itemize}
-  \item Simple and intuitive implementation.
-  \item Low synchronization overhead due to independent signature computation.
+    \item Minimal control-flow divergence.
+    \item Easily extensible to various DFA families.
 \end{itemize}
 
 \textbf{Limitations:}
 \begin{itemize}
-  \item Multiple iterations needed for convergence.
-  \item Sorting overhead dominates runtime for large automata.
+    \item High sorting overhead for large state sets.
+    \item Requires multiple refinement iterations to reach stability.
 \end{itemize}
 
 \begin{figure}[H]
@@ -119,36 +151,33 @@ Both variants yield identical partitions; the atomic version reduces passes at t
   \label{fig:alg2-3-naivepr}
 \end{figure}
 
-\subsection{3.3.3 SortPR — Optimized Signature-Based Partition Refinement}
+\subsection{SortPR — Optimized Signature-Based Partition Refinement}
 
-\textbf{Overview:}
-SortPR improves upon NaivePR by reordering and grouping transitions using sorting-based techniques to minimize redundant comparisons. Instead of rebuilding entire partitions from scratch each iteration, SortPR uses precomputed signature arrays and stable sorting to accelerate block formation.
+\textbf{Overview:}  
+SortPR refines the NaivePR method by employing GPU sorting and hashing optimizations. It minimizes redundant comparisons between states through precomputed signature vectors and hash-based compression.  
 
 \textbf{Algorithmic Flow:}
-\begin{itemize}
-  \item Transition Mapping: Each transition is labeled with its source state and target block ID.
-  \item Signature Assembly: For each state, a fixed-length signature vector is constructed representing all outgoing transitions.
-  \item Sorting and Merging: States are sorted by their signature vectors; identical signatures form a single block.
-  \item Refinement: Reassign new block IDs and continue refinement until stability is achieved.
-\end{itemize}
+\begin{enumerate}
+    \item Label each transition with its source state and target block ID.
+    \item Assemble signature vectors for each state.
+    \item Apply parallel radix sort to group identical signatures.
+    \item Merge adjacent states with equal signatures into a new block.
+    \item Iterate until partitions stabilize.
+\end{enumerate}
 
-\textbf{GPU Implementation Highlights:}
-\begin{itemize}
-  \item Uses parallel radix sorting to group identical signatures in O(nlogk) time (where k is alphabet size).
-  \item Prefix-sum and scan operations identify partition boundaries without sequential dependencies.
-  \item Signatures are stored in compressed hash form to fit within shared memory constraints.
-\end{itemize}
+\textbf{GPU Implementation:}  
+SortPR uses shared memory for signature caching and warp-synchronous sorting to minimize divergence. Hash compression ensures signatures fit within per-thread memory limits. Prefix-sum scans efficiently identify block boundaries, eliminating serial bottlenecks.
 
 \textbf{Advantages:}
 \begin{itemize}
-  \item Achieves significant speedups compared to NaivePR for large DFAs.
-  \item Well-suited to GPU memory hierarchies and warp-synchronous execution.
+    \item Outperforms NaivePR by reducing redundant recomputation.
+    \item Achieves high GPU occupancy and low synchronization cost.
 \end{itemize}
 
 \textbf{Limitations:}
 \begin{itemize}
-  \item Higher memory usage due to storage of multiple signature buffers.
-  \item Sorting cost remains substantial for very large alphabets.
+    \item Memory usage increases with large alphabets due to signature vectors.
+    \item Sorting dominates runtime for small automata.
 \end{itemize}
 
 \begin{figure}[H]
@@ -158,33 +187,33 @@ SortPR improves upon NaivePR by reordering and grouping transitions using sortin
   \label{fig:alg4-sortpr}
 \end{figure}
 
-\subsection{3.3.4 TransPR — Hybrid Transitive-Partition Algorithm}
+\subsection{TransPR — Hybrid Transitive-Partition Algorithm}
 
-\textbf{Overview:}
-The TransPR algorithm is the most advanced among the four. It combines the theoretical completeness of transitive closure with the efficiency of partition refinement, selectively applying closure steps to reduce redundant iterations.
+\textbf{Overview:}  
+The TransPR algorithm merges the strengths of both transitive closure and partition refinement approaches. It performs partial closure computations within each iteration to reduce redundant splits, striking a balance between computational depth and per-pass workload.
 
 \textbf{Algorithmic Flow:}
-\begin{itemize}
-  \item Initial Partitioning: Begin with standard partition refinement.
-  \item Partial Closure Application: For each iteration, a limited closure is computed only over recently modified partitions.
-  \item Selective Refinement: Newly distinguished pairs trigger localized partition updates, avoiding full recomputation.
-  \item Convergence: Alternate between refinement and closure propagation until no changes occur.
-\end{itemize}
+\begin{enumerate}
+    \item Begin with partition refinement as in SortPR.
+    \item After each iteration, compute closure only on recently modified partitions.
+    \item Use closure results to preemptively refine blocks in subsequent iterations.
+    \item Alternate between refinement and closure until convergence.
+\end{enumerate}
 
-\textbf{Parallel Design:}
-The hybrid structure maps well to GPUs: closure propagation runs as a separate kernel, while partition updates run as batched refinements. Shared memory buffers store “recently changed” blocks for selective reprocessing.
+\textbf{Parallel Implementation:}  
+The hybrid design launches separate kernels for closure propagation and partition refinement. Shared memory buffers track “changed” partitions, while global synchronization occurs only between kernel phases. This design minimizes global atomic operations.
 
 \textbf{Advantages:}
 \begin{itemize}
-  \item Reduces total number of refinement iterations dramatically.
-  \item Balances memory usage and computational efficiency.
-  \item Demonstrates strong real-world scalability across automata families.
+    \item Reduces total iterations significantly compared to NaivePR.
+    \item Balances computational load across threads dynamically.
+    \item Demonstrates high performance consistency across diverse automata.
 \end{itemize}
 
 \textbf{Limitations:}
 \begin{itemize}
-  \item Implementation complexity is higher than pure refinement methods.
-  \item Requires careful tuning of the closure frequency to avoid redundant computations.
+    \item More complex to implement due to interleaving phases.
+    \item Requires parameter tuning for closure frequency.
 \end{itemize}
 
 \begin{figure}[H]
@@ -196,37 +225,44 @@ The hybrid structure maps well to GPUs: closure propagation runs as a separate k
 
 \section{GPU Optimization and Parallel Design Principles}
 
-Efficient GPU utilization is central to the proposed methodology. The authors employ several key optimization techniques:
+High performance in GPU computation arises not only from algorithmic parallelism but also from architectural alignment. The following design principles underlie all implementations in this framework:
+
 \begin{itemize}
-  \item Memory Coalescing: Transition data and signatures are stored in contiguous arrays to ensure coalesced global memory access.
-  \item Shared Memory Buffers: Frequently accessed partition metadata is cached in shared memory, reducing latency.
-  \item Warp-Level Parallelism: Each warp processes adjacent states to minimize divergence during signature comparisons.
-  \item Atomic-Free Aggregation: Instead of relying on costly atomic updates, prefix-sum operations aggregate block updates efficiently.
-  \item Double Buffering: Two buffers alternate between input and output partitions per iteration, avoiding race conditions.
+    \item \textbf{Memory Coalescing:} Data structures are arranged contiguously, enabling adjacent threads to access consecutive memory addresses.
+    \item \textbf{Shared Memory Utilization:} Frequently accessed data—such as block metadata—is cached in low-latency shared memory, reducing global access frequency.
+    \item \textbf{Warp-Level Synchronization:} Each warp processes sequential blocks of states to minimize divergence and branch mispredictions.
+    \item \textbf{Atomic-Free Reductions:} Aggregation operations (such as block splitting detection) employ prefix-sum and reduction primitives instead of atomic counters.
+    \item \textbf{Double Buffering:} Alternating input/output buffers prevent race conditions between successive iterations.
 \end{itemize}
 
+Additionally, GPU-specific optimizations like register reuse, memory alignment, and warp shuffles are applied to sustain high throughput across millions of concurrent threads.
 
 \section{Implementation Workflow Summary}
 
-All the described algorithms share a common implementation pipeline. This modular design enables consistent evaluation and facilitates integration of future algorithmic extensions.
+All four algorithms are integrated into a common GPU software stack, ensuring modularity and comparability.
 
-\textbf{DFA Loading and Normalization}
+\textbf{DFA Loading and Normalization:}
 \begin{itemize}
-  \item Input automata are parsed into normalized GPU structures.
-  \item Initial partitions (accepting/non-accepting) are prepared.
+    \item Input automata are parsed into standardized data structures compatible with GPU kernels.
+    \item States are labeled, and transition tables are flattened into contiguous arrays.
 \end{itemize}
 
-\textbf{Parallel Minimization Stage}
+\textbf{Parallel Minimization Stage:}
 \begin{itemize}
-  \item User selects one of four algorithms (TRANS, NaivePR, SortPR, or TransPR).
-  \item GPU kernels execute refinement steps until stabilization.
+    \item One algorithm (TRANS, NaivePR, SortPR, or TransPR) is selected at runtime.
+    \item Kernels are launched iteratively until convergence.
 \end{itemize}
 
-\textbf{Minimized DFA Reconstruction}
+\textbf{Minimized DFA Reconstruction:}
 \begin{itemize}
-  \item Final partitions are used to rebuild the minimized automaton.
-  \item Transition tables are compacted and exported for verification.
+    \item The final partition array is used to construct the minimized DFA.
+    \item Transition tables are compacted and exported for analysis.
 \end{itemize}
 
-\textbf{Output Verification}
-The minimized DFA is cross-validated against the original for behavioral equivalence.
+\textbf{Output Validation:}
+\begin{itemize}
+    \item Behavioral equivalence between the minimized and original DFA is verified using GPU-accelerated equivalence checking.
+\end{itemize}
+
+This pipeline allows controlled experimentation, scalability testing, and future integration of additional minimization algorithms.
+
